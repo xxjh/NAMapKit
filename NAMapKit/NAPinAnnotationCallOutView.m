@@ -37,6 +37,8 @@ static NSString *NAMapViewAnnotationCalloutImageBG = @"/callout_bg.png";
 @property (nonatomic, assign) CGPoint point;
 @property (nonatomic, assign) CGPoint position;
 @property (nonatomic, weak)   NAMapView *mapView;
+//add by sing, 2016-04-23
+@property (nonnull, strong) UIView *customCalloutView;
 
 - (void)positionView:(UIView *)view posX:(float)x;
 - (void)positionView:(UIView *)view posX:(float)x width:(float)width;
@@ -68,9 +70,19 @@ static NSString *NAMapViewAnnotationCalloutImageBG = @"/callout_bg.png";
     return self;
 }
 
+- (id)initOnMapView:(NAMapView *)mapView
+    withCustomCalloutView:(UIView*)calloutView
+{
+    self = [self initOnMapView:mapView];
+    self.customCalloutView = calloutView;
+    
+    return self;
+}
+
 - (void)setAnnotation:(NAPinAnnotation *)annotation
 {
-
+    _annotation = annotation;
+    
     // --- RESET ---
 
     self.titleLabel.text    = @"";
@@ -88,6 +100,24 @@ static NSString *NAMapViewAnnotationCalloutImageBG = @"/callout_bg.png";
     CGFloat anchorWidth   = self.calloutAnchorView.image.size.width;
     CGFloat anchorHeight  = self.calloutAnchorView.image.size.height;
     CGFloat maxWidth      = self.mapView.frame.size.width;
+    
+    // --- custom callout view
+    //add by sing, 2016-04-23
+    if (_customCalloutView != nil) {
+        if ([_customCalloutView respondsToSelector:@selector(setAnnotationView:)]) {
+            [_customCalloutView setValue:annotation forKey:@"annotationView"];
+        }
+        [self addSubview:_customCalloutView];
+        CGFloat totalWidth  = _customCalloutView.frame.size.width + leftCapWidth + rightCapWidth;
+        
+        self.point = annotation.point;
+        CGFloat height = MAX(anchorHeight, _customCalloutView.frame.size.height);
+        
+        CGRect calloutViewFrame = _customCalloutView.frame;
+        self.frame = CGRectMake((self.frame.size.width - calloutViewFrame.size.width) / 2.0, (self.frame.size.height - calloutViewFrame.size.height) / 2.0, self.frame.size.width, self.frame.size.height);
+        [self updatePosition];
+        return;
+    }
 
     // --- FRAME ---
 
@@ -187,7 +217,7 @@ static NSString *NAMapViewAnnotationCalloutImageBG = @"/callout_bg.png";
     self.titleLabel.frame = CGRectMake(leftCapWidth, currentTitleTopOffset, labelWidth, currentTitleLabelHeight);
 
     [self addSubview:self.titleLabel];
-
+    
 }
 
 #pragma - Private helpers

@@ -21,7 +21,13 @@
 /// Recalculate position on map according to zoom level.
 - (void)updatePosition;
 
+//add by sing, 2016-04-23
+- (id)initOnMapView:(NAMapView *)mapView
+    withCustomCalloutView:(UIView*)calloutView;
+
 /// Pin annotation.
 @property(readwrite, nonatomic, strong) NAPinAnnotation *annotation;
+
+
 
 @end

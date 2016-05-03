@@ -12,7 +12,7 @@ const CGFloat NAMapViewAnnotationCalloutAnimationDuration = 0.1f;
 
 @interface NAPinAnnotationMapView()
 
-@property (nonatomic, strong) NAPinAnnotationCallOutView *calloutView;
+//@property (nonatomic, strong) NAPinAnnotationCallOutView *calloutView;
 
 - (IBAction)showCallOut:(id)sender;
 - (void)hideCallOut;
@@ -61,7 +61,9 @@ const CGFloat NAMapViewAnnotationCalloutAnimationDuration = 0.1f;
             [self.mapViewDelegate mapView:self tappedOnAnnotation:annontationView.annotation];
         }
         
-        [self showCalloutForAnnotation:annontationView.annotation animated:YES];
+        if (self.showsCalloutView) {
+            [self showCalloutForAnnotation:annontationView.annotation animated:YES];
+        }
     }
 }
 
@@ -82,6 +84,10 @@ const CGFloat NAMapViewAnnotationCalloutAnimationDuration = 0.1f;
     [UIView animateWithDuration:animationDuration animations:^{
         weakSelf.calloutView.transform = CGAffineTransformIdentity;
     }];
+    
+    if ([self.mapViewDelegate respondsToSelector:@selector(mapView:didShowCalloutView:)]) {
+        [self.mapViewDelegate mapView:self didShowCalloutView:self.calloutView];
+    }
 }
 
 - (void)hideCallOut
@@ -98,10 +104,34 @@ const CGFloat NAMapViewAnnotationCalloutAnimationDuration = 0.1f;
 	[super touchesEnded:touches withEvent:event];
 }
 
+//add by sing, 2016-04-24
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    /*
+    UITouch *touch = [touches anyObject];
+    if (touch.tapCount == 1) {
+        CGPoint center = [touch locationInView:self];
+        if ([self.mapViewDelegate respondsToSelector:@selector(mapView:didTapOnMapView:)]) {
+            [self.mapViewDelegate mapView:self didTapOnMapView:center];
+        }
+    }
+    */
+}
+
 - (void)updatePositions
 {
     [self.calloutView updatePosition];
     [super updatePositions];
+}
+
+//add by sing, 2016-04-23
+- (void)setCalloutView:(NAPinAnnotationCallOutView *)calloutView {
+    if ([_calloutView superview] != nil) {
+        [_calloutView removeFromSuperview];
+        _calloutView = nil;
+    }
+    _calloutView = calloutView;
+    [self addSubview:calloutView];
 }
 
 @end

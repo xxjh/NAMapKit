@@ -9,6 +9,8 @@
 @class NAMapView;
 @class NAAnnotation;
 
+@class NAPinAnnotationCallOutView;
+
 /**
  *  An NAMapView delegate.
  */
@@ -29,4 +31,10 @@
  *  @param level   The new zoom level.
  */
 - (void)mapView:(NAMapView *)mapView hasChangedZoomLevel:(CGFloat)level;
+
+//add by sing, 2016-04-24
+- (void)mapView:(NAMapView*)mapView didTapOnMapView:(CGPoint)point;
+- (void)mapView:(NAMapView*)mapView didLongPressTapOnMapView:(CGPoint)point;
+- (void)mapView:(NAMapView*)mapView didShowCalloutView:(NAPinAnnotationCallOutView*)callout;
+
 @end

@@ -16,4 +16,8 @@
  */
 @interface NAPinAnnotationMapView : NAMapView
 
+@property (nonatomic, strong) NAPinAnnotationCallOutView *calloutView;
+
+- (void)showCalloutForAnnotation:(NAPinAnnotation *)annotation animated:(BOOL)animated;
+
 @end

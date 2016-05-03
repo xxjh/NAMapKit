@@ -18,6 +18,7 @@ const CGFloat NAMapViewDefaultZoomStep = 1.5f;
 
 - (void)handleDoubleTap:(UIGestureRecognizer *)gestureRecognizer;
 - (void)handleTwoFingerTap:(UIGestureRecognizer *)gestureRecognizer;
+- (void)handlerSingleTap:(UIGestureRecognizer*)gestureRecognizer;
 
 @end
 
@@ -35,6 +36,10 @@ const CGFloat NAMapViewDefaultZoomStep = 1.5f;
 
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
 	UITapGestureRecognizer *twoFingerTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerTap:)];
+    UILongPressGestureRecognizer *longPressTap = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    longPressTap.minimumPressDuration = 1.0f;
+    longPressTap.allowableMovement = 100.0f;
+    [self addGestureRecognizer:longPressTap];
 
 	[doubleTap setNumberOfTapsRequired:2];
     
@@ -49,6 +54,7 @@ const CGFloat NAMapViewDefaultZoomStep = 1.5f;
     _zoomStep = NAMapViewDefaultZoomStep;
     _doubleTapGesture = doubleTap;
     _twoFingerTapGesture = twoFingerTap;
+    _longPressGesture = longPressTap;
 
     [self.panGestureRecognizer addTarget:self action:@selector(mapPanGestureHandler:)];
 }
@@ -123,6 +129,7 @@ const CGFloat NAMapViewDefaultZoomStep = 1.5f;
 {
 	CGFloat x = point.x - (self.frame.size.width / 2.0f);
 	CGFloat y = point.y - (self.frame.size.height / 2.0f);
+    
 	[self setContentOffset:CGPointMake(round(x), round(y)) animated:animate];
 }
 
@@ -133,6 +140,7 @@ const CGFloat NAMapViewDefaultZoomStep = 1.5f;
     
     CGFloat x = (self.contentSize.width / self.originalSize.width) * point.x;
     CGFloat y = (self.contentSize.height / self.originalSize.height) * point.y;
+    
     return CGPointMake(round(x), round(y));
 }
 
@@ -209,6 +217,22 @@ const CGFloat NAMapViewDefaultZoomStep = 1.5f;
 	// two-finger tap zooms out, but returns to normal zoom level if it reaches min zoom
 	CGFloat newScale = self.zoomScale <= self.minimumZoomScale ? self.maximumZoomScale : self.zoomScale / self.zoomStep;
 	[self setZoomScale:newScale animated:YES];
+}
+
+- (void)handleLongPress:(UIGestureRecognizer*)gestureRecognizer
+{
+    CGPoint point = [gestureRecognizer locationInView:self];
+    CGFloat x = (self.originalSize.width / self.contentSize.width) * point.x;
+    CGFloat y = (self.originalSize.height / self.contentSize.height) * point.y;
+    point = CGPointMake(x, y);
+    
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        if ([self.mapViewDelegate respondsToSelector:@selector(mapView:didLongPressTapOnMapView:)]) {
+            [self.mapViewDelegate mapView:self didLongPressTapOnMapView:point];
+        }
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        NSLog(@"long press end!");
+    }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context

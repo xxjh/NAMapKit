@@ -31,4 +31,7 @@ typedef enum {
 /// Create a new pin at a point on a map.
 - (id)initWithPoint:(CGPoint)point;
 
+//add by sing, 2016-04-24
+@property (nonatomic, assign) NSInteger state;  //0 is edit, 1 is add new
+
 @end

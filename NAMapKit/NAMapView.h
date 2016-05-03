@@ -49,6 +49,10 @@
 /// The double tap gesture for zooming out
 @property (readwrite, nonatomic, strong) UITapGestureRecognizer *twoFingerTapGesture;
 
+//add by sing, 2016-04-22
+@property (nonatomic, assign) BOOL showsCalloutView;
+@property (nonatomic, strong) UILongPressGestureRecognizer *longPressGesture;
+
 @end
 
 
